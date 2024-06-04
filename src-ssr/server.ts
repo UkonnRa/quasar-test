@@ -9,15 +9,15 @@
  * Make sure to yarn add / npm install (in your project root)
  * anything you import here (except for express and compression).
  */
-import express from 'express'
-import compression from 'compression'
+import express from "express";
+import compression from "compression";
 import {
   ssrClose,
   ssrCreate,
   ssrListen,
   ssrServeStaticContent,
-  ssrRenderPreloadTag
-} from 'quasar/wrappers'
+  ssrRenderPreloadTag,
+} from "quasar/wrappers";
 
 /**
  * Create your webserver and return its instance.
@@ -27,20 +27,20 @@ import {
  * Should NOT be async!
  */
 export const create = ssrCreate((/* { ... } */) => {
-  const app = express()
+  const app = express();
 
   // attackers can use this header to detect apps running Express
   // and then launch specifically-targeted attacks
-  app.disable('x-powered-by')
+  app.disable("x-powered-by");
 
   // place here any middlewares that
   // absolutely need to run before anything else
   if (process.env.PROD) {
-    app.use(compression())
+    app.use(compression());
   }
 
-  return app
-})
+  return app;
+});
 
 /**
  * You need to make the server listen to the indicated port
@@ -54,14 +54,14 @@ export const create = ssrCreate((/* { ... } */) => {
  * handler for serverless use or whatever else fits your needs.
  */
 export const listen = ssrListen(async ({ app, devHttpsApp, port, isReady }) => {
-  await isReady()
-  const server = devHttpsApp || app
+  await isReady();
+  const server = devHttpsApp || app;
   return server.listen(port, () => {
     if (process.env.PROD) {
-      console.log('Server listening at port ' + port)
+      console.log("Server listening at port " + port);
     }
-  })
-})
+  });
+});
 
 /**
  * Should close the server and free up any resources.
@@ -74,10 +74,10 @@ export const listen = ssrListen(async ({ app, devHttpsApp, port, isReady }) => {
  * Can be async.
  */
 export const close = ssrClose(({ listenResult }) => {
-  return listenResult.close()
-})
+  return listenResult.close();
+});
 
-const maxAge = process.env.DEV ? 0 : 1000 * 60 * 60 * 24 * 30
+const maxAge = process.env.DEV ? 0 : 1000 * 60 * 60 * 24 * 30;
 
 /**
  * Should return middleware that serves the indicated path
@@ -86,50 +86,52 @@ const maxAge = process.env.DEV ? 0 : 1000 * 60 * 60 * 24 * 30
 export const serveStaticContent = ssrServeStaticContent((path, opts) => {
   return express.static(path, {
     maxAge,
-    ...opts
-  })
-})
+    ...opts,
+  });
+});
 
-const jsRE = /\.js$/
-const cssRE = /\.css$/
-const woffRE = /\.woff$/
-const woff2RE = /\.woff2$/
-const gifRE = /\.gif$/
-const jpgRE = /\.jpe?g$/
-const pngRE = /\.png$/
+const jsRE = /\.js$/;
+const cssRE = /\.css$/;
+const woffRE = /\.woff$/;
+const woff2RE = /\.woff2$/;
+const gifRE = /\.gif$/;
+const jpgRE = /\.jpe?g$/;
+const pngRE = /\.png$/;
 
 /**
  * Should return a String with HTML output
  * (if any) for preloading indicated file
  */
-export const renderPreloadTag = ssrRenderPreloadTag((file/* , { ssrContext } */) => {
-  if (jsRE.test(file) === true) {
-    return `<link rel="modulepreload" href="${file}" crossorigin>`
-  }
+export const renderPreloadTag = ssrRenderPreloadTag(
+  (file /* , { ssrContext } */) => {
+    if (jsRE.test(file) === true) {
+      return `<link rel="modulepreload" href="${file}" crossorigin>`;
+    }
 
-  if (cssRE.test(file) === true) {
-    return `<link rel="stylesheet" href="${file}" crossorigin>`
-  }
+    if (cssRE.test(file) === true) {
+      return `<link rel="stylesheet" href="${file}" crossorigin>`;
+    }
 
-  if (woffRE.test(file) === true) {
-    return `<link rel="preload" href="${file}" as="font" type="font/woff" crossorigin>`
-  }
+    if (woffRE.test(file) === true) {
+      return `<link rel="preload" href="${file}" as="font" type="font/woff" crossorigin>`;
+    }
 
-  if (woff2RE.test(file) === true) {
-    return `<link rel="preload" href="${file}" as="font" type="font/woff2" crossorigin>`
-  }
+    if (woff2RE.test(file) === true) {
+      return `<link rel="preload" href="${file}" as="font" type="font/woff2" crossorigin>`;
+    }
 
-  if (gifRE.test(file) === true) {
-    return `<link rel="preload" href="${file}" as="image" type="image/gif" crossorigin>`
-  }
+    if (gifRE.test(file) === true) {
+      return `<link rel="preload" href="${file}" as="image" type="image/gif" crossorigin>`;
+    }
 
-  if (jpgRE.test(file) === true) {
-    return `<link rel="preload" href="${file}" as="image" type="image/jpeg" crossorigin>`
-  }
+    if (jpgRE.test(file) === true) {
+      return `<link rel="preload" href="${file}" as="image" type="image/jpeg" crossorigin>`;
+    }
 
-  if (pngRE.test(file) === true) {
-    return `<link rel="preload" href="${file}" as="image" type="image/png" crossorigin>`
-  }
+    if (pngRE.test(file) === true) {
+      return `<link rel="preload" href="${file}" as="image" type="image/png" crossorigin>`;
+    }
 
-  return ''
-})
+    return "";
+  },
+);
