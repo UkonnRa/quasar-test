@@ -83,6 +83,7 @@ export default configure((ctx) => {
               tsconfigPath: "tsconfig.vue-tsc.json",
             },
             eslint: {
+              useFlatConfig: true,
               lintCommand: 'eslint "./**/*.{js,ts,mjs,cjs,vue}"',
             },
           },
