@@ -1,11 +1,20 @@
 <template>
   <q-page class="row items-center justify-evenly">
     <example-component
-      title="Example component"
+      :title="counterStore.testVal + ' <===> ' + counterStore.nodeEnv"
       active
       :todos="todos"
       :meta="meta"
     />
+    <code>
+      <pre>
+        {{ counterStore.testVal }}
+        {{ counterStore.nodeEnv }}
+      </pre>
+
+      <strong>From Vue Component</strong>
+      <div>{{ testVal }}</div>
+    </code>
   </q-page>
 </template>
 
@@ -13,10 +22,14 @@
 import { ref } from "vue";
 import { Todo, Meta } from "components/models";
 import ExampleComponent from "components/ExampleComponent.vue";
+import { useCounterStore } from "stores/example-store";
+import nodeProcess from "node:process";
 
 defineOptions({
   name: "IndexPage",
 });
+
+const counterStore = useCounterStore();
 
 const todos = ref<Todo[]>([
   {
@@ -44,4 +57,9 @@ const todos = ref<Todo[]>([
 const meta = ref<Meta>({
   totalCount: 1200,
 });
+
+// TODO: this will cause `Hydration completed but contains mismatches` error
+const testVal = process.env.SERVER
+  ? nodeProcess.env.VITE_TEST_VAL
+  : process.env.VITE_TEST_VAL;
 </script>

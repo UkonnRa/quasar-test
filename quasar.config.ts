@@ -5,6 +5,7 @@
 
 import { configure } from "quasar/wrappers";
 import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 
 export default configure((ctx) => {
   return {
@@ -49,7 +50,7 @@ export default configure((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: dotenv.config().parsed,
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -76,19 +77,20 @@ export default configure((ctx) => {
             include: [fileURLToPath(new URL("./src/i18n", import.meta.url))],
           },
         ],
-        [
-          "vite-plugin-checker",
-          {
-            vueTsc: {
-              tsconfigPath: "tsconfig.vue-tsc.json",
-            },
-            eslint: {
-              useFlatConfig: true,
-              lintCommand: 'eslint "./**/*.{js,ts,mjs,cjs,vue}"',
-            },
-          },
-          { server: false },
-        ],
+        // TODO: https://github.com/fi3ework/vite-plugin-checker/issues/306
+        // [
+        //   "vite-plugin-checker",
+        //   {
+        //     vueTsc: {
+        //       tsconfigPath: "tsconfig.vue-tsc.json",
+        //     },
+        //     eslint: {
+        //       useFlatConfig: true,
+        //       lintCommand: 'eslint "./**/*.{js,ts,mjs,cjs,vue}"',
+        //     },
+        //   },
+        //   { server: false },
+        // ],
       ],
     },
 
