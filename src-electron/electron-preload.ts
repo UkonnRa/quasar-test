@@ -27,3 +27,16 @@
  *   }
  * }
  */
+
+import { contextBridge, ipcRenderer } from "electron";
+
+contextBridge.exposeInMainWorld("electron", {
+  journalFindById: (id: string) =>
+    ipcRenderer.invoke("journalFindById", { id }),
+  journalFindAll: (query: object) =>
+    ipcRenderer.invoke("journalFindAll", { query }),
+  accountFindById: (id: string) =>
+    ipcRenderer.invoke("accountFindById", { id }),
+  accountFindAll: (query: object) =>
+    ipcRenderer.invoke("accountFindAll", { query }),
+});

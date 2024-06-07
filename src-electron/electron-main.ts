@@ -1,17 +1,11 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import os from "os";
 import { fileURLToPath } from "url";
 import { ChannelCredentials, Metadata } from "@grpc/grpc-js";
-import * as process from "node:process";
 
+import { AccountServiceClient } from "./proto/gen/whiterabbit/account/v1/account";
 import {
-  Account,
-  AccountQuery,
-  AccountServiceClient,
-} from "./proto/gen/whiterabbit/account/v1/account";
-import {
-  Journal,
   JournalQuery,
   JournalServiceClient,
 } from "./proto/gen/whiterabbit/journal/v1/journal";
@@ -77,46 +71,6 @@ app.whenReady().then(() => {
     process.env.VITE_API_URL_BASE ?? "[::1]:50051",
     ChannelCredentials.createInsecure(),
   );
-
-  const metadata = new Metadata();
-  metadata.set("authorization", "Bearer some-secret-token");
-  journalClient.findAll(
-    { query: JournalQuery.fromPartial({}) },
-    metadata,
-    (err, resp) => {
-      if (err) {
-        console.error("Error when finding journals: ", err);
-      } else {
-        accountClient!.findAll(
-          {
-            query: AccountQuery.fromPartial({ journalId: [resp.values[0].id] }),
-          },
-          metadata,
-          (err, resp) => {
-            if (err) {
-              console.error("Error when finding account: ", err);
-            } else {
-              console.log("Find Accounts: ", resp.values);
-              for (const [id, { typeUrl, value }] of Object.entries(
-                resp.included,
-              )) {
-                if (typeUrl === "/whiterabbit.account.v1.Account") {
-                  const decoded = Account.decode(value);
-                  console.log("  Account - Id: ", id, ", decoded: ", decoded);
-                } else if (typeUrl === "/whiterabbit.journal.v1.Journal") {
-                  const decoded = Journal.decode(value);
-                  console.log("  Journal - Id: ", id, ", decoded: ", decoded);
-                } else {
-                  console.error("No typeUrl found");
-                }
-              }
-            }
-          },
-        );
-      }
-    },
-  );
-
   createWindow();
 });
 
@@ -129,5 +83,79 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   if (mainWindow === undefined) {
     createWindow();
+  }
+});
+
+ipcMain.handle("journalFindById", async (_e, args) => {
+  console.log("journalFindById: ", args);
+  if (journalClient && args.id) {
+    const metadata = new Metadata();
+    metadata.set("authorization", "Bearer some-secret-token");
+
+    return new Promise((resolve, reject) => {
+      journalClient!.findById({ id: `${args.id}` }, metadata, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.value);
+        }
+      });
+    });
+  }
+});
+
+ipcMain.handle("journalFindAll", async (_e, args) => {
+  console.log("journalFindAll: ", args);
+  if (journalClient && args.query) {
+    const metadata = new Metadata();
+    metadata.set("authorization", "Bearer some-secret-token");
+
+    return new Promise((resolve, reject) => {
+      journalClient!.findAll(
+        { query: JournalQuery.fromPartial(args.query) },
+        metadata,
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve([data.values, new Map()]);
+          }
+        },
+      );
+    });
+  }
+});
+
+ipcMain.handle("accountFindById", async (_e, args) => {
+  if (accountClient && args.id) {
+    const metadata = new Metadata();
+    metadata.set("authorization", "Bearer some-secret-token");
+
+    return new Promise((resolve, reject) => {
+      accountClient!.findById({ id: `${args.id}` }, metadata, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data.value);
+        }
+      });
+    });
+  }
+});
+
+ipcMain.handle("accountFindAll", async (_e, args) => {
+  if (accountClient && args.query) {
+    const metadata = new Metadata();
+    metadata.set("authorization", "Bearer some-secret-token");
+
+    return new Promise((resolve, reject) => {
+      accountClient!.findAll({ query: args.query }, metadata, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve([data.values, new Map()]);
+        }
+      });
+    });
   }
 });

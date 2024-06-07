@@ -15,7 +15,7 @@ export default configure((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ["i18n"],
+    boot: ["i18n", ctx.modeName === "electron" ? "electron" : ""],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],
@@ -77,7 +77,10 @@ export default configure((ctx) => {
             include: [fileURLToPath(new URL("./src/i18n", import.meta.url))],
           },
         ],
-        ["rollup-plugin-visualizer"],
+        [
+          "rollup-plugin-visualizer",
+          { filename: `stats-${ctx.modeName}.html` },
+        ],
         // TODO: https://github.com/fi3ework/vite-plugin-checker/issues/306
         // [
         //   "vite-plugin-checker",

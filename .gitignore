@@ -42,4 +42,4 @@ yarn-error.log*
 # Protobuf
 src-electron/proto/gen
 
-stats.html
+stats-*.html
