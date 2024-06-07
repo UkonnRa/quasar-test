@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package whiterabbit.journal.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Journal {
+  string id = 1;
+  google.protobuf.Timestamp created_date = 2;
+  string name = 3;
+  string description = 4;
+  string unit = 5;
+  repeated string tags = 6;
+}
+
+message JournalQuery {
+  repeated string id = 1;
+  repeated string name = 2;
+  string unit = 3;
+  repeated string tags = 4;
+  string full_text = 5;
+}
+
+message FindAllRequest {
+  JournalQuery query = 1;
+}
+
+message FindAllResponse {
+  repeated Journal values = 1;
+}
+
+message FindByIdRequest {
+  string id = 1;
+}
+
+message FindByIdResponse {
+  Journal value = 1;
+}
+
+service JournalService {
+  rpc FindAll(FindAllRequest) returns (FindAllResponse);
+  rpc FindById(FindByIdRequest) returns (FindByIdResponse);
+}

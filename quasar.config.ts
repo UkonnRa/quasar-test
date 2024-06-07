@@ -77,6 +77,7 @@ export default configure((ctx) => {
             include: [fileURLToPath(new URL("./src/i18n", import.meta.url))],
           },
         ],
+        ["rollup-plugin-visualizer"],
         // TODO: https://github.com/fi3ework/vite-plugin-checker/issues/306
         // [
         //   "vite-plugin-checker",
